@@ -14,28 +14,34 @@ final class ProtoSerializerTest extends TestCase
 {
     private ProtoSerializer $serializer;
 
-    public static function invalidTypeDataProvider(): iterable
+    protected function setUp(): void
     {
-        yield [null];
-        yield ['foo'];
-        yield [new \stdClass()];
-        yield [\stdClass::class];
+        $this->serializer = new ProtoSerializer();
     }
 
     public function testSerializeMessage(): void
     {
         $message = new PingRequest(['url' => 'foo']);
 
-        self::assertSame($message->serializeToString(), $this->serializer->serialize($message));
+        $this->assertSame(
+            $message->serializeToString(),
+            $this->serializer->serialize($message)
+        );
     }
 
     public function testUnserialize(): void
     {
         $message = new PingRequest(['url' => 'foo']);
 
-        self::assertEquals($message, $this->serializer->unserialize($message->serializeToString(), PingRequest::class));
+        $this->assertEquals(
+            $message,
+            $this->serializer->unserialize($message->serializeToString(), PingRequest::class)
+        );
 
-        self::assertEquals($message, $this->serializer->unserialize($message->serializeToString(), new PingRequest()));
+        $this->assertEquals(
+            $message,
+            $this->serializer->unserialize($message->serializeToString(), new PingRequest())
+        );
     }
 
     public function testInvalidPayloadException(): void
@@ -51,8 +57,11 @@ final class ProtoSerializerTest extends TestCase
         $this->serializer->unserialize('serialized', $type);
     }
 
-    protected function setUp(): void
+    public static function invalidTypeDataProvider(): iterable
     {
-        $this->serializer = new ProtoSerializer();
+        yield [null];
+        yield ['foo'];
+        yield [new \stdClass()];
+        yield [\stdClass::class];
     }
 }

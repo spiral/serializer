@@ -14,7 +14,7 @@ final class JsonSerializer implements SerializerInterface
     /**
      * @throws SerializeException
      */
-    public function serialize(mixed $payload): string
+    public function serialize(mixed $payload): string|\Stringable
     {
         try {
             return \json_encode($payload, JSON_THROW_ON_ERROR);
@@ -30,7 +30,7 @@ final class JsonSerializer implements SerializerInterface
     {
         if ($type !== null) {
             throw new InvalidArgumentException(
-                \sprintf('Serializer `%s` does not support data hydration to an object.', self::class),
+                \sprintf('Serializer `%s` does not support data hydration to an object.', self::class)
             );
         }
 

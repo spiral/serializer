@@ -9,10 +9,10 @@ use Spiral\Serializer\SerializerInterface;
 final class CallbackSerializer implements SerializerInterface
 {
     /** @var callable */
-    private readonly mixed $serializeCallback;
+    private mixed $serializeCallback;
 
     /** @var callable */
-    private readonly mixed $unserializeCallback;
+    private mixed $unserializeCallback;
 
     public function __construct(callable $serializeCallback, callable $unserializeCallback)
     {

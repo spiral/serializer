@@ -31,8 +31,9 @@ final class SerializerBootloader extends Bootloader
     public function __construct(
         private readonly ConfiguratorInterface $config,
         private readonly ContainerInterface $container,
-        private readonly FactoryInterface $factory,
-    ) {}
+        private readonly FactoryInterface $factory
+    ) {
+    }
 
     public function init(EnvironmentInterface $env): void
     {
@@ -41,14 +42,14 @@ final class SerializerBootloader extends Bootloader
 
     private function initSerializerManager(
         SerializerRegistryInterface $serializers,
-        SerializerConfig $config,
+        SerializerConfig $config
     ): SerializerManager {
         return new SerializerManager($serializers, $config->getDefault());
     }
 
     private function initSerializerRegistry(SerializerConfig $config): SerializerRegistryInterface
     {
-        return new SerializerRegistry(\array_map($this->wire(...), $config->getSerializers()));
+        return new SerializerRegistry(\array_map([$this, 'wire'], $config->getSerializers()));
     }
 
     private function initConfig(EnvironmentInterface $env): void
@@ -76,7 +77,7 @@ final class SerializerBootloader extends Bootloader
         return match (true) {
             $serializer instanceof SerializerInterface => $serializer,
             $serializer instanceof Autowire => $serializer->resolve($this->factory),
-            default => $this->container->get($serializer),
+            default => $this->container->get($serializer)
         };
     }
 }

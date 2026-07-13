@@ -21,6 +21,11 @@ final class SerializerBootloaderTest extends TestCase
 {
     private Container $container;
 
+    protected function setUp(): void
+    {
+        $this->container = new Container();
+    }
+
     public function testDefaultSerializerIsConfigured(): void
     {
         $this->configureSerializer([
@@ -29,9 +34,9 @@ final class SerializerBootloaderTest extends TestCase
         ]);
 
         $manager = $this->container->get(SerializerManager::class);
-        self::assertInstanceOf(SerializerManager::class, $manager);
-        self::assertInstanceOf(PhpSerializer::class, $manager->getSerializer('serializer'));
-        self::assertInstanceOf(JsonSerializer::class, $manager->getSerializer('json'));
+        $this->assertInstanceOf(SerializerManager::class, $manager);
+        $this->assertInstanceOf(PhpSerializer::class, $manager->getSerializer('serializer'));
+        $this->assertInstanceOf(JsonSerializer::class, $manager->getSerializer('json'));
 
         $this->expectException(SerializerNotFoundException::class);
         $manager->getSerializer('foo');
@@ -42,11 +47,11 @@ final class SerializerBootloaderTest extends TestCase
         $this->configureSerializer();
 
         $registry = $this->container->get(SerializerRegistryInterface::class);
-        $registry->register('callback', new CallbackSerializer(static fn() => null, static fn() => null));
+        $registry->register('callback', new CallbackSerializer(fn () => null, fn () => null));
 
         $manager = $this->container->get(SerializerManager::class);
-        self::assertInstanceOf(SerializerManager::class, $manager);
-        self::assertInstanceOf(CallbackSerializer::class, $manager->getSerializer('callback'));
+        $this->assertInstanceOf(SerializerManager::class, $manager);
+        $this->assertInstanceOf(CallbackSerializer::class, $manager->getSerializer('callback'));
 
         $this->expectException(SerializerNotFoundException::class);
         $manager->getSerializer('foo');
@@ -59,7 +64,7 @@ final class SerializerBootloaderTest extends TestCase
         $this->configureSerializer(['json' => PhpSerializer::class]);
 
         $manager = $this->container->get(SerializerManager::class);
-        self::assertInstanceOf(PhpSerializer::class, $manager->getSerializer('json'));
+        $this->assertInstanceOf(PhpSerializer::class, $manager->getSerializer('json'));
     }
 
     public function testAddSerializerByAutowire(): void
@@ -67,21 +72,16 @@ final class SerializerBootloaderTest extends TestCase
         $this->configureSerializer(['json' => new Autowire(PhpSerializer::class)]);
 
         $manager = $this->container->get(SerializerManager::class);
-        self::assertInstanceOf(PhpSerializer::class, $manager->getSerializer('json'));
-    }
-
-    protected function setUp(): void
-    {
-        $this->container = new Container();
+        $this->assertInstanceOf(PhpSerializer::class, $manager->getSerializer('json'));
     }
 
     private function configureSerializer(array $serializers = []): void
     {
         $this->container->bind(SerializerConfig::class, new SerializerConfig([
             'default' => 'json',
-            'serializers' => $serializers,
+            'serializers' => $serializers
         ]));
-        $bootloader = new SerializerBootloader($this->createStub(ConfiguratorInterface::class), $this->container, $this->container);
+        $bootloader = new SerializerBootloader($this->createMock(ConfiguratorInterface::class), $this->container, $this->container);
 
         $this->container->bindSingleton(SerializerRegistryInterface::class, [$bootloader, 'initSerializerRegistry']);
         $this->container->bindSingleton(SerializerManager::class, [$bootloader, 'initSerializerManager']);
