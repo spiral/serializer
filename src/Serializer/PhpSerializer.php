@@ -10,7 +10,7 @@ use Spiral\Serializer\SerializerInterface;
 
 final class PhpSerializer implements SerializerInterface
 {
-    public function serialize(mixed $payload): string|\Stringable
+    public function serialize(mixed $payload): string
     {
         return \serialize($payload);
     }
@@ -40,7 +40,7 @@ final class PhpSerializer implements SerializerInterface
             throw new InvalidArgumentException(\sprintf(
                 'Data received after unserializing must be of type: `%s`, received `%s`',
                 $type,
-                \get_debug_type($result)
+                \get_debug_type($result),
             ));
         }
 

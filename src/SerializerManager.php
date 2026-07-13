@@ -8,11 +8,10 @@ class SerializerManager implements SerializerInterface
 {
     public function __construct(
         protected readonly SerializerRegistry $serializers,
-        protected readonly string $defaultFormat
-    ) {
-    }
+        protected readonly string $defaultFormat,
+    ) {}
 
-    public function getSerializer(string $format = null): SerializerInterface
+    public function getSerializer(?string $format = null): SerializerInterface
     {
         return $this->serializers->get($format ?? $this->defaultFormat);
     }
@@ -25,7 +24,7 @@ class SerializerManager implements SerializerInterface
     public function unserialize(
         string|\Stringable $payload,
         string|object|null $type = null,
-        ?string $format = null
+        ?string $format = null,
     ): mixed {
         return $this->getSerializer($format ?? $this->defaultFormat)->unserialize($payload, $type);
     }
